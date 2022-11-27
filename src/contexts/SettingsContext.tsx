@@ -2,7 +2,7 @@ import { ReactNode, createContext } from 'react';
 // hooks
 import useLocalStorage from '../hooks/useLocalStorage';
 // utils
-import getColorPresets, { colorPresets, defaultPreset } from '../utils/getColorPresets';
+import { defaultPreset } from '../utils/getColorPresets';
 // config
 import { defaultSettings } from '../config';
 
