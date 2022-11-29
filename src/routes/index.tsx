@@ -1,8 +1,8 @@
 import { Suspense, lazy, ElementType } from 'react';
 import { Navigate, useRoutes, useLocation } from 'react-router-dom';
-// hooks
 import useAuth from '../hooks/useAuth';
-// components
+import GuestGuard from '../guards/GuestGuard';
+import AuthGuard from '../guards/AuthGuard';
 import LoadingScreen from '../components/LoadingScreen';
 
 // ----------------------------------------------------------------------
@@ -25,8 +25,29 @@ const Loadable = (Component: ElementType) => (props: any) => {
 
 export default function Router() {
   return useRoutes([
-    { path: '*', element: <Navigate to="/404" replace /> },
+    {
+      path: 'auth',
+      children: [
+        {
+          path: 'login',
+          element: (
+            <GuestGuard>
+              <Login />
+            </GuestGuard>
+          ),
+        },
+        {
+          path: 'register',
+          element: (
+            <GuestGuard>
+              <Register />
+            </GuestGuard>
+          ),
+        },
+      ],
+    },
   ]);
 }
 
-const Page404 = Loadable(lazy(() => import('../pages/Page404')));
+const Login = Loadable(lazy(() => import('../pages/login/Login')));
+const Register = Loadable(lazy(() => import('../pages/register/Register')));
