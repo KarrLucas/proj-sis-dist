@@ -3,7 +3,7 @@ import { Navigate } from 'react-router-dom';
 // hooks
 import useAuth from '../hooks/useAuth';
 // routes
-import { PATH_DASHBOARD } from '../routes/paths';
+import { PATH_CHAT } from '../routes/paths';
 // components
 import LoadingScreen from '../components/LoadingScreen';
 
@@ -17,7 +17,7 @@ export default function GuestGuard({ children }: GuestGuardProps) {
   const { isAuthenticated, isInitialized } = useAuth();
 
   if (isAuthenticated) {
-    return <Navigate to={PATH_DASHBOARD.root} />;
+    return <Navigate to={PATH_CHAT.root} />;
   }
 
   if (!isInitialized) {

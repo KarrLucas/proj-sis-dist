@@ -3,25 +3,26 @@ import { createSlice } from '@reduxjs/toolkit';
 import { ChatState } from '../../@types/chat';
 //
 import { dispatch } from '../store';
+import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, setDoc, getDocs } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+import { FIREBASE_API } from '../../config';
 
 // ----------------------------------------------------------------------
-
-function objFromArray(array: any[], key = 'id') {
-  return array.reduce((accumulator, current) => {
-    accumulator[current[key]] = current;
-    return accumulator;
-  }, {});
-}
 
 const initialState: ChatState = {
   isLoading: false,
   error: null,
-  contacts: { byId: {}, allIds: [] },
-  conversations: { byId: {}, allIds: [] },
-  activeConversationId: null,
-  participants: [],
-  recipients: [],
+  allUserConversations: [],
+  allUsers: [],
+  currentConversationUid: null,
 };
+
+const firebaseApp = initializeApp(FIREBASE_API);
+
+const DB = getFirestore(firebaseApp);
+
+const conversationsRef = collection(DB, 'conversations');
+const usersRef = collection(DB, 'users');
 
 const slice = createSlice({
   name: 'chat',
@@ -38,82 +39,97 @@ const slice = createSlice({
       state.error = action.payload;
     },
 
-    // GET CONTACT SSUCCESS
-    getContactsSuccess(state, action) {
-      const contacts = action.payload;
-
-      state.contacts.byId = objFromArray(contacts);
-      state.contacts.allIds = Object.keys(state.contacts.byId);
+    getAllUserCoversationsSuccess(state, action){
+      console.log( action.payload)
+      state.allUserConversations = action.payload;
     },
 
-    // GET CONVERSATIONS
-    getConversationsSuccess(state, action) {
-      const conversations = action.payload;
-
-      state.conversations.byId = objFromArray(conversations);
-      state.conversations.allIds = Object.keys(state.conversations.byId);
+    getAllUsersSuccess(state, action){
+      state.allUsers = action.payload;
     },
 
-    // GET CONVERSATION
-    getConversationSuccess(state, action) {
-      const conversation = action.payload;
-
-      if (conversation) {
-        state.conversations.byId[conversation.id] = conversation;
-        state.activeConversationId = conversation.id;
-        if (!state.conversations.allIds.includes(conversation.id)) {
-          state.conversations.allIds.push(conversation.id);
-        }
-      } else {
-        state.activeConversationId = null;
-      }
-    },
-
-    // ON SEND MESSAGE
-    onSendMessage(state, action) {
-      const conversation = action.payload;
-      const { conversationId, messageId, message, contentType, attachments, createdAt, senderId } =
-        conversation;
-
-      const newMessage = {
-        id: messageId,
-        body: message,
-        contentType,
-        attachments,
-        createdAt,
-        senderId,
-      };
-
-      state.conversations.byId[conversationId].messages.push(newMessage);
-    },
-
-    markConversationAsReadSuccess(state, action) {
-      const { conversationId } = action.payload;
-      const conversation = state.conversations.byId[conversationId];
-      if (conversation) {
-        conversation.unreadCount = 0;
-      }
-    },
-
-    // GET PARTICIPANTS
-    getParticipantsSuccess(state, action) {
-      const participants = action.payload;
-      state.participants = participants;
-    },
-
-    // RESET ACTIVE CONVERSATION
-    resetActiveConversation(state) {
-      state.activeConversationId = null;
-    },
-
-    addRecipients(state, action) {
-      const recipients = action.payload;
-      state.recipients = recipients;
-    },
+    setCurrentConversationUid(state, action){
+      state.currentConversationUid = action.payload;
+    }
   },
 });
 
 // Reducer
 export default slice.reducer;
+
+export function getAllUserCoversations(userUid: any) {
+  return async () => {
+    try {
+      const data = onSnapshot(conversationsRef, async (querySnapshot) =>{
+        var userConversations: any = [];
+        querySnapshot.forEach(async (_doc) => {
+          if(_doc.data().uids.includes(userUid)){
+            var convTemp = _doc.data();
+            convTemp.users = [];
+            const map = convTemp.uids.map(async (uid: any) =>{
+              var user = await getDoc(doc(DB, 'users', uid));
+              convTemp.users.push(user.data());
+            })
+            await Promise.all(map);
+            convTemp.messages.sort((a: any,b: any) =>{
+                if (a.date < b.date) {
+                  return -1;
+                }
+                if (a > b.date) {
+                  return 1;
+                }
+                return 0;
+            })
+            console.log(convTemp)
+            userConversations = [...userConversations, convTemp];
+            console.log(userConversations)
+          }
+        });
+      });
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function getAllUsers(userUid: any) {
+  return async () => {
+    try {
+        const data = await getDocs(usersRef);
+        var users: any = [];
+        data.forEach((_doc) =>{
+          if(_doc.data().uid !== userUid){
+            users.push(_doc.data());
+          }
+        })
+        dispatch(slice.actions.getAllUsersSuccess(users));
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function createConversation(currentUserUid: any, userUid: any, conversations: any){
+  return async () => {
+    try {
+        const convAux = conversations.filter((conv: any) => conv.type === 'privada' && conv.uids.includes(currentUserUid) && conv.uids.includes(userUid))[0];
+        if(convAux){
+          dispatch(slice.actions.setCurrentConversationUid(convAux.uid));
+        }else{
+          const docRef = await addDoc(conversationsRef, {
+            type: "privada",
+            uids: [currentUserUid, userUid],
+            messages: [],
+          });
+
+          await updateDoc(doc(DB, 'conversations', docRef.id), {
+            uid: docRef.id
+          });
+        }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
 
 // ----------------------------------------------------------------------

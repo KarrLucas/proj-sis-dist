@@ -1,4 +1,3 @@
-import { m } from 'framer-motion';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -26,16 +25,11 @@ export default function Page404() {
       <Container>
         <ContentStyle sx={{ textAlign: 'center', alignItems: 'center' }}>
           <Typography variant="h3" paragraph>
-            Sorry, page not found!
+            Desculpe, página não encontrada!!
           </Typography>
 
-          <Typography sx={{ color: 'text.secondary' }}>
-            Sorry, we couldn’t find the page you’re looking for. Perhaps you’ve mistyped the URL?
-            Be sure to check your spelling.
-          </Typography>
-
-          <Button to="/" size="large" variant="contained" component={RouterLink}>
-            Go to Home
+          <Button to="/auth/login" size="large" variant="contained" component={RouterLink}>
+            Voltar ao início
           </Button>
         </ContentStyle>
       </Container>

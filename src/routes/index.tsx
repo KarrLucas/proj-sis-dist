@@ -4,6 +4,7 @@ import useAuth from '../hooks/useAuth';
 import GuestGuard from '../guards/GuestGuard';
 import AuthGuard from '../guards/AuthGuard';
 import LoadingScreen from '../components/LoadingScreen';
+import Header from 'src/layouts/header';
 
 // ----------------------------------------------------------------------
 
@@ -46,8 +47,28 @@ export default function Router() {
         },
       ],
     },
+    {
+      path: 'chat',
+      element: (
+        <AuthGuard>
+          <Header/>
+        </AuthGuard>
+      ),
+      children: [
+        { element: <Navigate to='messages' replace /> },
+        { path: 'messages', element:  <Messages />},
+      ],
+    },
+    { path: '404', element: <Page404/> },
+    { path: '*', element: <Navigate to="/404" replace /> },
   ]);
 }
 
+//auth
 const Login = Loadable(lazy(() => import('../pages/login/Login')));
 const Register = Loadable(lazy(() => import('../pages/register/Register')));
+
+//messages
+const Messages = Loadable(lazy(() => import('../pages/messages/Messages')));
+
+const Page404 = Loadable(lazy(() => import('../pages/Page404')));

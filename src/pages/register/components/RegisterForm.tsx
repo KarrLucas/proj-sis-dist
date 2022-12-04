@@ -18,8 +18,7 @@ import { FormProvider, RHFTextField } from '../../../components/hook-form';
 type FormValuesProps = {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   afterSubmit?: string;
 };
 
@@ -31,15 +30,13 @@ export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
 
   const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string().required('First name required'),
-    lastName: Yup.string().required('Last name required'),
-    email: Yup.string().email('Email must be a valid email address').required('Email is required'),
-    password: Yup.string().required('Password is required'),
+    name: Yup.string().required('Digite o seu Nome'),
+    email: Yup.string().email('Digite um email válido').required('Digite um email'),
+    password: Yup.string().required('Digite uma senha'),
   });
 
   const defaultValues = {
-    firstName: '',
-    lastName: '',
+    name: '',
     email: '',
     password: '',
   };
@@ -58,7 +55,7 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: FormValuesProps) => {
     try {
-      await register(data.email, data.password, data.firstName, data.lastName);
+      await register(data.email, data.password, data.name);
     } catch (error) {
       console.error(error);
       reset();
@@ -73,16 +70,13 @@ export default function RegisterForm() {
       <Stack spacing={3}>
         {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
 
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <RHFTextField name="firstName" label="First name" />
-          <RHFTextField name="lastName" label="Last name" />
-        </Stack>
+        <RHFTextField name="name" label="Nome Completo" />
 
-        <RHFTextField name="email" label="Email address" />
+        <RHFTextField name="email" label="Email" />
 
         <RHFTextField
           name="password"
-          label="Password"
+          label="Senha"
           type={showPassword ? 'text' : 'password'}
           InputProps={{
             endAdornment: (
@@ -102,7 +96,7 @@ export default function RegisterForm() {
           variant="contained"
           loading={isSubmitting}
         >
-          Register
+          Registrar
         </LoadingButton>
       </Stack>
     </FormProvider>

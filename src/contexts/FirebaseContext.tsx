@@ -115,7 +115,7 @@ function AuthProvider({ children }: AuthProviderProps) {
         ...state,
         method: 'firebase',
         user: {
-          id: state?.user?.uid,
+          uid: state?.user?.uid,
           email: state?.user?.email,
           name: state?.user?.name || profile?.name,
         },
