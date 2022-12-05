@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { ChatState } from '../../@types/chat';
 //
 import { dispatch } from '../store';
-import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, setDoc, getDocs } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, setDoc, getDocs, arrayUnion } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { FIREBASE_API } from '../../config';
 
@@ -40,8 +40,16 @@ const slice = createSlice({
     },
 
     getAllUserCoversationsSuccess(state, action){
-      console.log( action.payload)
-      state.allUserConversations = action.payload;
+      var index = state.allUserConversations.findIndex((conv: any) => conv.uid === action.payload.uid);
+      if(index !== -1){
+        state.allUserConversations[index] = action.payload;
+      }else{
+        state.allUserConversations.push(action.payload);
+      }
+    },
+
+    resetAllUserConversations(state){
+      state.allUserConversations = [];
     },
 
     getAllUsersSuccess(state, action){
@@ -57,18 +65,21 @@ const slice = createSlice({
 // Reducer
 export default slice.reducer;
 
+export const { setCurrentConversationUid, resetAllUserConversations } = slice.actions;
+
 export function getAllUserCoversations(userUid: any) {
   return async () => {
     try {
       const data = onSnapshot(conversationsRef, async (querySnapshot) =>{
-        var userConversations: any = [];
         querySnapshot.forEach(async (_doc) => {
           if(_doc.data().uids.includes(userUid)){
             var convTemp = _doc.data();
             convTemp.users = [];
             const map = convTemp.uids.map(async (uid: any) =>{
-              var user = await getDoc(doc(DB, 'users', uid));
-              convTemp.users.push(user.data());
+              if(uid !== userUid){
+                var user = await getDoc(doc(DB, 'users', uid));
+                convTemp.users.push(user.data());
+              }
             })
             await Promise.all(map);
             convTemp.messages.sort((a: any,b: any) =>{
@@ -80,9 +91,7 @@ export function getAllUserCoversations(userUid: any) {
                 }
                 return 0;
             })
-            console.log(convTemp)
-            userConversations = [...userConversations, convTemp];
-            console.log(userConversations)
+            dispatch(slice.actions.getAllUserCoversationsSuccess(convTemp));
           }
         });
       });
@@ -125,7 +134,25 @@ export function createConversation(currentUserUid: any, userUid: any, conversati
           await updateDoc(doc(DB, 'conversations', docRef.id), {
             uid: docRef.id
           });
+          dispatch(slice.actions.setCurrentConversationUid(docRef.id));
         }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function sendMessage(conversationUid: any, userUid: any, message: any){
+  return async () => {
+    try {
+      const conversationRef = doc(DB, "conversations", conversationUid);
+      await updateDoc(conversationRef, {
+        messages: arrayUnion({
+          text: message,
+          time: Date.now(),
+          userUid,
+        })
+    });
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }

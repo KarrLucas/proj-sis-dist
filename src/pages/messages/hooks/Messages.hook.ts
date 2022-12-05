@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import useAuth from "src/hooks/useAuth";
-import { getAllUserCoversations, getAllUsers } from "src/redux/slices/chat";
+import { getAllUserCoversations, getAllUsers, resetAllUserConversations } from "src/redux/slices/chat";
 import { useDispatch } from "src/redux/store"
 
 const useMessages = () => {
@@ -8,6 +8,7 @@ const useMessages = () => {
     const { user } = useAuth();
     
     useEffect(() =>{
+        dispatch(resetAllUserConversations())
         getAllConversations();
         getUsers();
     },[])

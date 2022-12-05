@@ -17,7 +17,8 @@ export default function NewConversation({
     const dispatch = useDispatch();
 
     const newConversation = (uid: any) =>{
-        dispatch(createConversation(user?.uid, uid, allUserConversations))
+        dispatch(createConversation(user?.uid, uid, allUserConversations));
+        onClose();
     }
 
     return(

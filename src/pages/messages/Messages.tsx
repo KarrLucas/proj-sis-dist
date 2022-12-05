@@ -7,12 +7,12 @@ export default function Messages(){
     const { messagesHook } = useMessages();
 
     return(
-        <Card sx={{ width: '100%',height: '100%', display: 'flex', maxWidth: '1500px' }}>
+        <Card sx={{ width: '100%', height: '72vh', display: 'flex', maxWidth: '1500px' }}>
             <Grid container>
                 <Grid item sm={4} xs={12}>
                     <List/>
                 </Grid>
-                <Grid item sm={8} xs={0}>
+                <Grid item sm={8} xs={0} sx={{ display: 'flex', height: '100%' }}>
                     <Chat/>
                 </Grid>
             </Grid>
