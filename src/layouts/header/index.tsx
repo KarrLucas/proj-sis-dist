@@ -8,7 +8,7 @@ import useOffSetTop from '../../hooks/useOffSetTop';
 // utils
 import cssStyles from '../../utils/cssStyles';
 // config
-import { HEADER, NAVBAR } from '../../config';
+import { HEADER } from '../../config';
 import AccountPopover from './AccountPopover';
 import NewConversation from './NewConversation';
 import Newgroup from './NewGroup';

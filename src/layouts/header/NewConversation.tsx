@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogTitle, Box, Typography, Stack, Button, IconButton } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, Box, Typography, Stack, IconButton } from '@mui/material'
 import Iconify from 'src/components/Iconify';
 import useAuth from 'src/hooks/useAuth';
 import { createConversation } from 'src/redux/slices/chat';

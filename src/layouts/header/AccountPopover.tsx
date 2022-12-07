@@ -13,7 +13,6 @@ import useIsMountedRef from '../../hooks/useIsMountedRef';
 import MyAvatar from '../../components/MyAvatar';
 import MenuPopover from '../../components/MenuPopover';
 import { IconButtonAnimate } from '../../components/animate';
-import NewConversation from './NewConversation';
 
 // ----------------------------------------------------------------------
 

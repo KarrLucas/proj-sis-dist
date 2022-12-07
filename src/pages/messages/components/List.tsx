@@ -1,7 +1,6 @@
 import { Box, Stack, Typography } from "@mui/material";
 import { setCurrentConversationUid } from "src/redux/slices/chat";
 import { useDispatch, useSelector } from "src/redux/store";
-import moment from 'moment';
 import useAuth from "src/hooks/useAuth";
 import Scrollbar from "src/components/Scrollbar";
 
@@ -14,9 +13,11 @@ export default function List(){
     return(
         <Box flexGrow={1} sx={{ width: '100%', overflow: 'hidden' }}>
             {allUserConversations.length === 0 ?
-                <Typography>
-                    Você não possui conversas no momento
-                </Typography>
+                <Box sx={{ width: '100%', height: '100%', display:'flex', justifyContent:'center', alignItems:'center' }}>
+                    <Typography variant="h6">
+                        Você não possui conversas no momento
+                    </Typography>
+                </Box>
                 :
                     <Scrollbar sx={{ height: 1 }}>
                         {
@@ -43,7 +44,7 @@ export default function List(){
                                                 {   conv.messages[conv.messages.length - 1]?.userUid === user?.uid ?
                                                     `Você: ${conv.messages[conv.messages.length - 1]?.text}`
                                                     :
-                                                    allUsers.filter((u: any) => u.uid == conv.messages[conv.messages.length - 1]?.userUid)[0]?.name + `: ${conv.messages[conv.messages.length - 1]?.text}`
+                                                    allUsers.filter((u: any) => u.uid === conv.messages[conv.messages.length - 1]?.userUid)[0]?.name + `: ${conv.messages[conv.messages.length - 1]?.text}`
                                                 }
                                             </Typography>
                                         }

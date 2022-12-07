@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 import { ChatState } from '../../@types/chat';
 //
 import { dispatch } from '../store';
-import { getFirestore, collection, addDoc, onSnapshot, doc, getDoc, updateDoc, setDoc, getDocs, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, getDocs, arrayUnion } from 'firebase/firestore';
 import { initializeApp } from 'firebase/app';
 import { FIREBASE_API } from '../../config';
 
@@ -74,7 +74,7 @@ export const { setCurrentConversationUid, resetAllUserConversations } = slice.ac
 export function getAllUserCoversations(userUid: any) {
   return async () => {
     try {
-      const data = onSnapshot(conversationsRef, async (querySnapshot) =>{
+      onSnapshot(conversationsRef, async (querySnapshot) =>{
         const conversations: any = [];
         querySnapshot.forEach(async (_doc) => {
           if(_doc.data().uids.includes(userUid)){
