@@ -58,10 +58,15 @@ export default function LoginForm() {
 
       reset();
 
-      if (isMountedRef.current) {
-        console.log(error);
-        setError('afterSubmit', { ...error, message: error.message });
-      }
+      // if (isMountedRef.current) {
+        if(error.message.includes('user-not-found')){
+          setError('afterSubmit', { ...error, message: 'Usuário não encontrado' });
+        }else if(error.message.includes('wrong-password')){
+          setError('afterSubmit', { ...error, message: 'Senha incorreta' });
+        }else{
+          setError('afterSubmit', { ...error, message: 'Erro no Servidor' });
+        }
+      // }
     }
   };
 

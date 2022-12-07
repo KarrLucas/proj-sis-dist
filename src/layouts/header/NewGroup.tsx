@@ -89,7 +89,8 @@ export default function Newgroup({
                 )}
                 <Stack direction='row'>
                     <Box flexGrow={1}/>
-                    <Button 
+                    <Button
+                        variant='contained' 
                         disabled={selecteds.length === 0 || !groupName || groupName === ''}
                         onClick={() => newGroup()}
                     >
