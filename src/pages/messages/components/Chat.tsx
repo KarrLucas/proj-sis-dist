@@ -40,7 +40,7 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Chat(){
     const { user } = useAuth();
-    const { allUserConversations, currentConversationUid } = useSelector((state) => state.chat)
+    const { allUserConversations, currentConversationUid, allUsers } = useSelector((state) => state.chat)
     var conversation = allUserConversations.filter((conv: any) => conv.uid === currentConversationUid)[0];
     const [ message, setMessage ] = useState('');
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -89,7 +89,7 @@ export default function Chat(){
                                 > 
                                     <div>
                                         <InfoStyle variant="caption">
-                                            {!(message.userUid === user?.uid) && `${conversation.users.filter((u: any) => u.uid === message.userUid)[0]?.name},`}&nbsp;
+                                            {!(message.userUid === user?.uid) && `${allUsers.filter((u: any) => u.uid === message.userUid)[0]?.name},`}&nbsp;
                                                 {formatDistanceToNowStrict(new Date(message.time), {
                                                 addSuffix: true,
                                                 locale: ptBR

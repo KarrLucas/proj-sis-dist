@@ -9,7 +9,7 @@ export default function Messages(){
     return(
         <Card sx={{ width: '100%', height: '72vh', display: 'flex', maxWidth: '1500px' }}>
             <Grid container>
-                <Grid item sm={4} xs={12}>
+                <Grid item sm={4} xs={12} sx={{ display: 'flex', height: '100%' }}>
                     <List/>
                 </Grid>
                 <Grid item sm={8} xs={0} sx={{ display: 'flex', height: '100%' }}>

@@ -11,6 +11,8 @@ import cssStyles from '../../utils/cssStyles';
 import { HEADER, NAVBAR } from '../../config';
 import AccountPopover from './AccountPopover';
 import NewConversation from './NewConversation';
+import Newgroup from './NewGroup';
+import Iconify from 'src/components/Iconify';
 
 // ----------------------------------------------------------------------
 
@@ -33,10 +35,6 @@ const RootStyle = styled(AppBar, {
   }),
   [theme.breakpoints.up('lg')]: {
     height: HEADER.DASHBOARD_DESKTOP_HEIGHT,
-    width: `calc(100% - ${NAVBAR.DASHBOARD_WIDTH + 1}px)`,
-    ...(isCollapse && {
-      width: `calc(100% - ${NAVBAR.DASHBOARD_COLLAPSE_WIDTH}px)`,
-    }),
     ...(isOffset && {
       height: HEADER.DASHBOARD_DESKTOP_OFFSET_HEIGHT,
     }),
@@ -62,9 +60,14 @@ export default function Header({
 }: Props) {
   const isOffset = useOffSetTop(HEADER.DASHBOARD_DESKTOP_HEIGHT) && !verticalLayout;
   const [openConversation, setOpenConversation] = useState<boolean>(false);
+  const [openGroup, setOpenGroup] = useState<boolean>(false);
 
   const handleCloseConversation = () =>{
     setOpenConversation(false);
+  }
+
+  const handleCloseGroup = () =>{
+    setOpenGroup(false);
   }
 
   return (
@@ -73,12 +76,20 @@ export default function Header({
         <Toolbar
           sx={{
             minHeight: '100% !important',
+            width: '100%',
             px: { lg: 5 },
+            boxShadow: (theme) => theme.shadows[5]
           }}
         >
-          <Button variant='text' onClick={() => setOpenConversation(true)}>
-            Nova Conversa
-          </Button>
+          <Stack direction='row' alignItems='center' spacing={2}>
+            <Button startIcon={<Iconify icon='ic:baseline-plus'/>} variant='text' onClick={() => setOpenConversation(true)}>
+              Nova Conversa
+            </Button>
+
+            <Button startIcon={<Iconify icon='ic:baseline-plus'/>} variant='text' onClick={() => setOpenGroup(true)}>
+              Novo Grupo
+            </Button>
+          </Stack>
 
           <Box sx={{ flexGrow: 1 }} />
 
@@ -108,6 +119,7 @@ export default function Header({
         <Outlet />
       </Box>
       <NewConversation open={openConversation} onClose={handleCloseConversation}/>
+      <Newgroup open={openGroup} onClose={handleCloseGroup}/>
     </>
   );
 }

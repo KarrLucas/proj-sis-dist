@@ -1,4 +1,5 @@
-import { Dialog, DialogContent, DialogTitle, Box, Typography } from '@mui/material'
+import { Dialog, DialogContent, DialogTitle, Box, Typography, Stack, Button, IconButton } from '@mui/material'
+import Iconify from 'src/components/Iconify';
 import useAuth from 'src/hooks/useAuth';
 import { createConversation } from 'src/redux/slices/chat';
 import { useDispatch, useSelector } from 'src/redux/store';
@@ -24,7 +25,13 @@ export default function NewConversation({
     return(
         <Dialog fullWidth maxWidth='sm' open={open} onClose={onClose}>
             <DialogTitle>
-                Escolha um usuário:
+                <Stack direction='row' alignItems='center'>
+                    Nova Conversa:  
+                    <Box flexGrow={1}/>
+                    <IconButton onClick={() => onClose()}>
+                        <Iconify icon='ph:x-bold'/>
+                    </IconButton>
+                </Stack>
             </DialogTitle>
             <DialogContent>
                 {allUsers.map((user: any) =>

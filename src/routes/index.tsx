@@ -55,12 +55,13 @@ export default function Router() {
         </AuthGuard>
       ),
       children: [
-        { element: <Navigate to='messages' replace /> },
+        { path: '', element: <Navigate to='messages' replace /> },
         { path: 'messages', element:  <Messages />},
       ],
     },
     { path: '404', element: <Page404/> },
     { path: '*', element: <Navigate to="/404" replace /> },
+    { path: '/', element: <Navigate to="/chat" replace /> },
   ]);
 }
 

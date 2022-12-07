@@ -40,12 +40,16 @@ const slice = createSlice({
     },
 
     getAllUserCoversationsSuccess(state, action){
-      var index = state.allUserConversations.findIndex((conv: any) => conv.uid === action.payload.uid);
-      if(index !== -1){
-        state.allUserConversations[index] = action.payload;
-      }else{
-        state.allUserConversations.push(action.payload);
-      }
+      action.payload.sort((a: any,b: any) =>{
+        if ((a.lastMessageTime ? a.lastMessageTime : a.createdAt) > (b.lastMessageTime ?  b.lastMessageTime : b.createdAt)) {
+          return -1;
+        }
+        if ((a.lastMessageTime ? a.lastMessageTime : a.createdAt) < (b.lastMessageTime ?  b.lastMessageTime : b.createdAt)) {
+          return 1;
+        }
+        return 0;
+    })
+      state.allUserConversations = action.payload;
     },
 
     resetAllUserConversations(state){
@@ -71,29 +75,23 @@ export function getAllUserCoversations(userUid: any) {
   return async () => {
     try {
       const data = onSnapshot(conversationsRef, async (querySnapshot) =>{
+        const conversations: any = [];
         querySnapshot.forEach(async (_doc) => {
           if(_doc.data().uids.includes(userUid)){
             var convTemp = _doc.data();
-            convTemp.users = [];
-            const map = convTemp.uids.map(async (uid: any) =>{
-              if(uid !== userUid){
-                var user = await getDoc(doc(DB, 'users', uid));
-                convTemp.users.push(user.data());
-              }
-            })
-            await Promise.all(map);
+            conversations.push(convTemp);
             convTemp.messages.sort((a: any,b: any) =>{
                 if (a.date < b.date) {
                   return -1;
                 }
-                if (a > b.date) {
+                if (a.date > b.date) {
                   return 1;
                 }
                 return 0;
             })
-            dispatch(slice.actions.getAllUserCoversationsSuccess(convTemp));
           }
         });
+        dispatch(slice.actions.getAllUserCoversationsSuccess(conversations));
       });
     } catch (error) {
       dispatch(slice.actions.hasError(error));
@@ -129,6 +127,7 @@ export function createConversation(currentUserUid: any, userUid: any, conversati
             type: "privada",
             uids: [currentUserUid, userUid],
             messages: [],
+            createdAt: Date.now()
           });
 
           await updateDoc(doc(DB, 'conversations', docRef.id), {
@@ -136,6 +135,27 @@ export function createConversation(currentUserUid: any, userUid: any, conversati
           });
           dispatch(slice.actions.setCurrentConversationUid(docRef.id));
         }
+    } catch (error) {
+      dispatch(slice.actions.hasError(error));
+    }
+  };
+}
+
+export function createGroup(currentUserUid: any, usersUid: any, groupName: any){
+  return async () => {
+    try {
+        const docRef = await addDoc(conversationsRef, {
+          name: groupName,
+          type: "grupo",
+          uids: [currentUserUid, ...usersUid],
+          messages: [],
+          createdAt: Date.now()
+        });
+
+        await updateDoc(doc(DB, 'conversations', docRef.id), {
+          uid: docRef.id
+        });
+        dispatch(slice.actions.setCurrentConversationUid(docRef.id));
     } catch (error) {
       dispatch(slice.actions.hasError(error));
     }
@@ -151,7 +171,8 @@ export function sendMessage(conversationUid: any, userUid: any, message: any){
           text: message,
           time: Date.now(),
           userUid,
-        })
+        }),
+        lastMessageTime: Date.now()
     });
     } catch (error) {
       dispatch(slice.actions.hasError(error));
